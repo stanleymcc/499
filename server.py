@@ -1,3 +1,7 @@
+#Server
+#CS499
+#D.L.P. Danger Noodles
+
 import socket
 
 MAX_FILENAME = 255
