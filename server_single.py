@@ -1,3 +1,9 @@
+# Python 2.7
+# Authors: Coleman Platt, Erich Smith 
+# Last modified: Nov. 28, 2016
+
+
+
 import socket
 
 MAX_FILENAME = 255
