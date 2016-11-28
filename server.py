@@ -1,6 +1,8 @@
 #Server
-#CS499
-#D.L.P. Danger Noodles
+# Python 2.7
+# Authors: Coleman Platt, Erich Smith 
+# Last modified: Nov. 28, 2016
+ 
 
 import socket
 
