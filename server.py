@@ -4,61 +4,84 @@
 # Last modified: Nov. 28, 2016
  
 
+import BaseHTTPServer
 import socket
 
-MAX_FILENAME = 255
+def run_while_true(server_class=BaseHTTPServer.HTTPServer,
+      handler_class=BaseHTTPServer.BaseHTTPRequestHandler):
+      server_address = ('violet.cs.engr.uky.edu', 8000)
+      httpd = server_class(server_address, myHandler )
+      httpd.serve_forever()
+      
+      
+
+class myHandler(BaseHTTPRequestHandler):
+
+        #Handler for the PUT requests
+        def do_PUT(self):
+                print "----- SOMETHING WAS PUT!! ------"
+                print self.headers
+                length = int(self.headers['Content-Length'])
+                content = self.rfile.read(length)
+                self.send_response(200)
+                print content
+
 
 def main():
+    
+#    s = socket.socket()
+#    host = socket.gethostname()
+#    print host
+#    port = input('Enter a port number: ') 
+    
+#    s.bind((host,port))
+    
+#    s.listen(1)
+    run_while_true()
 
-	s = socket.socket()
-	host = ''
-	port = 2000
 
-	s.bind((host,port))
+ 
+    
+    while False:
+	c, addr = s.accept()
+        print('Got connection from',addr)
+        c.send('Connected')
 
-	s.listen(1)
-
-	while True:
-		c, addr = s.accept()
-
-		print('Connected to ' + str(addr))
-
+	#while (geninput != close):
+	c.send('Enter a command or \'close\' to quit')
+	cmd = c.recv(1024)
+	if cmd == 'close':
+		c.shutdown(2)
+		c.close()
+		break
+	elif cmd == 'rec':
+		print "SERVER: Filename"
 		filename = c.recv(1024)
-		print(filename)
-		filename.split(".doc")
-		print("file[1]:", filename[0])
-		print("file[2]: ", filename[1])
-		if len(filename[0]) > MAX_FILENAME:
-			print('Filename too big to save. Closing connection.')
-			s.close()
-			c.close()
-			break
+	
+#	if filename == 'q':
+#			c.close()
+#			s.close()
+#			break
+		print ("CLIENT:", filename)
 
-		if filename == 'q':
-			print('\'q\' received, closing connection with client.')
-			c.close()
-			s.close()
-			break
+		recfile = open(filename,'wb')
+		infile =  c.recv(1024)
+		while (infile):
+			print "SERVER: Receiving..."
+			recfile.write(infile)
+			infile = c.recv(1024)
 
-		f = open(filename[0],'wb')
+		print "SERVER: success?"
 
-		l =  c.recv(1024)
-		temp = len(filename[1])
-		while (l):
-			print('Receiving...' + filename)
-			if temp > 0:
-				f.write(filename[1])
-				temp = 0
-				#filename.pop(1)
-			else:
-				f.write(l)
-			l = c.recv(1024)
-
-		print('Received ' + filename + '.')
-		f.close()
+		recfile.close()
+		c.shutdown(2)
         	c.close()
 
-	print('Closed connection with ' + str(addr) + '.')
-	return
+
+		print "c close()"	
+
+
 
 main()
+
+
