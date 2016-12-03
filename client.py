@@ -1,61 +1,100 @@
 # Python 2.7
-# Authors: Coleman Platt, Erich Smith 
-# Last modified: Nov. 28, 2016
+# Authors: Coleman Platt, Erich Smith
+# Last modified: Dec. 2, 2016
 
 # This program will ask for a host name and port number
 # from user. If the connection is made the file sent will be sent.
 
 import socket
 import os
-import sys 
+import sys
 import BaseHTTPServer
 import httplib
 import string
+import telnetlib
+import base64
+
 def main():
 
-	#s = socket.socket()
-	host = 'violet.cs.engr.uky.edu' #raw_input('Enter a host name: ')
-	port = int(input('Enter a port number: '))
-	
-#	extension = '.doc'
-	#extension += raw_input('Enter filetype extension: ')
+	# Filename is given as command line argument to this module.
+	filename = str(sys.argv[1])
+	fileFound = False
 
-#	for root, dirs, files in os.walk(os.getcwd()):
-#		for file in files:
-#			if file.endswith(extension):
-	proto = raw_input("choose command channel(raw/https)")	
-	
-	
-	if proto == 'raw':	
+	# Search for the filename in the current working directory.
+	for root, dirs, files in os.walk(os.getcwd()):
+			for file in files:
+				if file == filename:
+					fileFound = True
+					print("Found " + filename)
+					break
+			if fileFound == True:
+				break
+				
+	# If the file was not found then exit the program.
+	if fileFound == False:
+		print("Filename " + filename + " not found.")
+		return
+
+	# Prompt user for connection method
+	proto = str(raw_input("Choose command channel: (raw/https/telnet) "))
+
+	# Socket only connection
+	if proto == "raw":
+
+		# Ask for host and port (hard coded during testing).
+		host = "violet.cs.engr.uky.edu" #str(raw_input("Enter a host name: "))
+		port = 2000 #int(input("Enter a port number: "))
+
+		# Create socket and attempt to connect to server using host and port given.
 		s = socket.socket()
-		s.connect((host, port))
-		s.recv(1024)
-		filename = './' + sys.argv[1]
-		print filename
+		if s.connect_ex((host, port)) != 0:
+			print("Error connecting to server.")
+			return
+
+		# Recieve text from the server.
+		#s.recv(1024)
+
+		# Send the filename aheaad of the file data
 		s.send(filename)
+
+		# Open the file and send data 1024 bits at a time to the server
 		f = open(filename,'rb')
 		l = f.read(1024)
 		while(l):
-			print('Sending...')
+			print("Sending...")
 			s.send(l)
 			l = f.read(1024)
-			f.close()
-		print('Done sending ' + filename)
+			
+		print("Done sending " + filename)
+
+		# Close connection to server.
 		s.shutdown(2)
 		s.close()
-	
-	#print('No more ' + extension + ' files found')
-		print('Closing connection to server')
-	elif proto == 'http':
-		s = httplib.HTTPConnection('violet.cs.engr.uky.edu',8000)
-		s.request("PUT",sys.argv[1])
-		response = s.getresponse()
-		print response.status, response.reason
-		s.close()
-#	s = socket.socket()
-#	s.connect((host, port))
-#	s.send('q')
-#	s.shutdown(2)
-#	s.close()
+		f.close()
+		
+		print("Closed connection to server.")
+
+	return
+#================================HTTPS Connection
+	#elif proto == 'https':
+#--------------------------------connect to server using https protocol
+		#s = httplib.HTTPSConnection('violet.cs.engr.uky.edu',8000)
+#--------------------------------request commands for the server to handle
+		#s.request("PUT",sys.argv[1])
+#--------------------------------recieving confirmation from server
+		#response = s.getresponse()
+		#print response.status, response.reason
+#--------------------------------close connection
+		#s.close()
+
+	#elif proto == 'telnet':
+		#tn = telnetlib.Telnet()
+		#n.open(host)
+		#with open(filename, rb) as f:
+			#content = f.read()
+
+		#content_serialized = base64.b64encode(content)
+
+		#tn.write(content_serialized)
 
 main()
