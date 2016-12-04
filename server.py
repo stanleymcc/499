@@ -16,39 +16,50 @@ MAX_FILENAME = 255
 #==============================Function that makes HTTPS server
 def httpserver():
         server_class = BaseHTTPServer.HTTPServer
-        #handler_class = BaseHTTPServer.BaseHTTPRequestHandler
 #------------------------------sets host to violet and por 8000
         server_address = ('violet.cs.engr.uky.edu', 8000)
 #------------------------------makes server with server and handler attribus
         httpd = server_class(server_address, myHandler)
 #------------------------------loop through request handler until server interuptions
         httpd.serve_forever()
+	return
+
 
 def securehttpserver():
         server_class = BaseHTTPServer.HTTPServer
         #handler_class = BaseHTTPServer.BaseHTTPRequestHandler
 #------------------------------sets host to violet and por 8000
         server_address = ('violet.cs.engr.uky.edu', 8000)
-#------------------------------makes server with server and handler attribus
+#------------------------------makes server with server and handler attribute
         httpd = server_class(server_address, myHandler)
 	httpd.socket = ssl.wrap_socket(httpd.socket ,certfile='./cert.pem' ,server_side=True)
 #------------------------------loop through request handler until server interuptions
         httpd.serve_forever()
+	return
 
 
 #=============================Class for handler to refrence and handler
 class myHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		 #Handler for the PUT requests
+
+	
 	def do_PUT(self):
-		 print "----- SOMETHING WAS PUT!! ------"
-		 print self.headers
+		print "----- SOMETHING WAS PUT!! ------"
+		print self.headers
 #---------------------recives size of data in request
-		 length = int(self.headers['Content-Length'])
+		length = int(self.headers['Content-Length'])
 #---------------------recieves data
-		 content = self.rfile.read(length)
+		
+		content = self.rfile.read(length)
+		print content
 #---------------------sends report
-		 self.send_response(200)
-		 print content
+		self.send_response(200)
+		 
+        
+	        with open(str(self.headers['Content-type']), "wb") as dst:
+		   	dst.write(content)
+			dst.close()
+		return
 	
 
 
