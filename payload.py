@@ -1,137 +1,180 @@
-import sys
-import os
-from PyQt4 import QtCore, QtGui,uic
+from rstr import xeger
 from docx import Document
-from docx.shared import Inches
-from faker import Factory
 from Crypto.Hash import SHA256
 import zipfile
 import tarfile
+import os
+import shutil 
+import xlsxwriter
 
-
-if hasattr(sys, '_MEIPASS'):
-    qtCreatorFile = os.path.join(sys._MEIPASS, "gui.ui")
-else:
-    qtCreatorFile= "gui.ui"
-
-Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)    # Load the UI
-    
-class MyApp(QtGui.QMainWindow, Ui_MainWindow):
-    def __init__(self):
-        QtGui.QMainWindow.__init__(self)
-        Ui_MainWindow.__init__(self)
-        self.setupUi(self)
-        self.Enter.clicked.connect(self.Event) #Once the Enter button on the GUI is pressed
-        # this code class the Event function. 
-         
-    
-    # Event grabs the information provided by the drop down boxes in the gui. 
-    def Event(self):
-        exten = self.exten.currentText()
-        compress = self.compress.currentText()
-        encrypt = self.encrypt.currentText()
-        self.extension(exten,encrypt,compress)
-        self.compression(compress,exten)
-        window.close()
-    
-    # Compression function: Calls all the compression type functions    
-    def compression(self,compress,exten):
-        if(compress == "ZIP"):
-            self.comp_zip(exten)
-        elif(compress =="TAR"):
-            self.comp_tar(exten)
-        else:
-            print "Some modules are still being prepared"
-    
-    # Recieves a ssn or ccn and hashes it using SHA256 and returns that value.     
-    def encryption(self,val):
+def encrypted(val):
         encrypt = SHA256.new()
         encrypt.update(val)        
         return encrypt.hexdigest()
-    
-    #Generates the files by calling individual file creation functions. 
-    def extension(self,exten,encrypt,compress):
-        #easy_file = ["xlsx","csv","xls","txt","conf"]
-        #if(exten in easy_file):
-         #   self.generate(exten,compress,encrypt)
-        if(exten == "doc" or exten == "docx"):
-            self.doc(exten,compress,encrypt)
-    #Generates random SSNs
-    def ssn(self):
-        fake = Factory.create()
-        return fake.ssn()
-    #Generates random CCNs using visa as its numbering scheme
-    def ccn(self):
-        fake = Factory.create()
-        return fake.credit_card_number(card_type="visa")
-    
-    #A genearlized file generation function.
-    def generate(self,exten,compress,encrypt):
-        f = open(('002x134uz.'+str(exten)),'w')
-        if(encrypt == "None"):
-            for i in range(100):
-                f.write(self.ssn()+'\n')
-                f.write(self.ccn()+'\n')
-           
-        else:
-            for i in range(100):
-                f.write(self.encryption(self.ssn())+'\n')
-                f.write(self.encryption(self.ccn())+'\n')
-        f.closed  
-        
-        if(compress != "None"):
-            self.compression(compress,exten)
-        
-    #Creates doc and docx files using the Documents Library.   
-    def doc(self,exten,compress,encrypt):
-        document = Document()
+                    
+def reg_generate(text):
+    string = xeger(text)
+    return string  
 
-        if(encrypt == "None"):
-            for i in range(0,100):
-                document.add_paragraph(self.ssn())
-                document.add_paragraph(self.ccn())
-        else:
-            for i in range(0,100):
-                document.add_paragraph(self.ssn())
-                document.add_paragraph(self.ccn())
-                
-        document.save('002x134uz.'+str(exten))
+def extensions(text):
+    file_doc(text)
+    file_txt(text)
+    #file_pdf(text)
+    file_xlsx(text)
+    file_csv(text)
+    
+def compression(file_):
+    comp_zip(file_)
+    comp_tar(file_)
+    comp_bz2(file_)
+    #comp_rar(file_)
+    comp_tar_gz(file_)
+    
+    shutil.move(file_,"./FILES")
+    
+def comp_zip(file_):
+    doc = file_
+    zip_f = file_ + '.zip'
+    zf = zipfile.ZipFile( zip_f,mode='w')
+    try:
+        zf.write(doc)
+    finally:
+        zf.close()
+    
+    shutil.move(zip_f,"./FILES/Compressed_File")
+            
+def comp_tar(file_):
+    doc =  file_
+    tar_f = file_ + '.tar'
+    out = tarfile.open( tar_f,mode='w')
+    try:
+        out.add(doc)
+    finally:
+        out.close()
+    
+    shutil.move(tar_f,"./FILES/Compressed_File")   
+    
+def comp_bz2(file_):
+    doc = file_
+    bz2 = file_ + ".tar.bz2"
+    bz2_f = tarfile.open( bz2, mode="w:bz2")
+    try:
+        bz2_f.add(doc)
+    finally:
+        bz2_f.close()
+    shutil.move(bz2,"./FILES/Compressed_File")  
+
+def comp_tar_gz(file_):
+    doc = file_
+    gz = file_ + ".tar.gz"
+    tar_gz = tarfile.open(gz, mode='w:gz')
+    try:
+        tar_gz.add(doc)
+    finally:
+        tar_gz.close()  
         
-        if(compress != "None"):
-            self.compression(exten,compress)
+    shutil.move(gz,"./FILES/Compressed_File")
+    
+
+    
+def file_doc(text):
+    docx = Document()
+    doc = Document()
+    docxen = Document()
+    docen = Document()    
+    for i in text:
+        for k in range(100):
+            doc.add_paragraph(reg_generate(i))
+            docx.add_paragraph(reg_generate(i))
+            docen.add_paragraph(encrypted(reg_generate(i)))
+            docxen.add_paragraph(encrypted(reg_generate(i)))            
+   
+    docx.save("unencrypted.docx")
+    doc.save("unencrypted.doc")
+    docxen.save("encrypted.docx")
+    docen.save("encrypted.doc")    
+    compression("unencrypted.docx")
+    compression("unencrypted.doc")
+    compression("encrypted.docx")
+    compression("encrypted.doc") 
+    
+def file_txt(text):
+    unencrypted = open("unencrypted.txt",'w')
+    encrypted_ = open("encrypted.txt",'w')
+    for i in text:
+            for k in range(100):
+                unencrypted.write(str(reg_generate(i)) + '\n')
+                encrypted_.write(str(encrypted(reg_generate(i)))+ '\n')
+    unencrypted.close()
+    encrypted_.close()
+    compression("unencrypted.txt")
+    compression("encrypted.txt")   
+
+def file_csv(text):
+    unencrypted = open("unencrypted.csv",'w')
+    encrypted_ = open("encrypted.csv",'w')    
+    for i in text:
+        for k in range(100):
+            unencrypted.write(str(reg_generate(i)) + '\n')
+            encrypted_.write(str(encrypted(reg_generate(i)))+ '\n')
+    unencrypted.close()
+    encrypted_.close()
+    compression("unencrypted.csv")
+    compression("encrypted.csv")
+def file_xlsx(text):
+    workbook_xu = xlsxwriter.Workbook('unencrypted.xlsx')
+    worksheet_xu = workbook_xu.add_worksheet()
+    workbook_xe = xlsxwriter.Workbook('encrypted.xlsx')
+    worksheet_xe = workbook_xe.add_worksheet()   
+    
+    workbook_u = xlsxwriter.Workbook('unencrypted.xls')
+    worksheet_u = workbook_u.add_worksheet()
+    workbook_e = xlsxwriter.Workbook('encrypted.xls')
+    worksheet_e = workbook_e.add_worksheet()        
+    for i in text:
+        for k in range(100):
+            worksheet_xu.write(k,0,str(reg_generate(i)))
+            worksheet_xe.write(k,0,str(encrypted(reg_generate(i))))
+            worksheet_u.write(k,0,str(reg_generate(i)))
+            worksheet_e.write(k,0,str(encrypted(reg_generate(i))))
+    workbook_xu.close()
+    workbook_xe.close()
+    workbook_u.close()
+    workbook_e.close()
+    compression("unencrypted.xlsx")
+    compression("unencrypted.xls")
+    compression("encrypted.xls")
+    compression("encrypted.xlsx")     
+def main():
+    print "To use hard coded data just press enter."
+    reg = str(raw_input("Enter a string or a regular expression: "))
+    inp =[]
+    path = "./FILES"
+    path2 = "/Compressed_File"
+    if not os.path.exists(path):
+        os.makedirs(path)
+        os.makedirs(path + path2)
+    else:
+        shutil.rmtree(path)
+        os.makedirs(path)
+        os.makedirs(path + path2)
+    while reg != "":
+        inp.append(reg)
+        print "Hit Enter on an empty line to stop."
+        reg = str(raw_input("Enter a string or a regular expression: "))
+
+    if len(inp) == 0:
+        #Expression for social security numbers
+        inp.append("[0-9][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9][0-9][0-9]") 
+   
+        #Expression for visa credit card numbers
+        inp.append("^4[0-9]{12}(?:[0-9]{3})?$")
         
-    
-    # Compression function for zips    
-    def comp_zip(self,exten):
-        doc = '002x134uz.' + str(exten) 
-        zf = zipfile.ZipFile('002x134uz.zip',mode='w')
-        try:
-            zf.write(doc)
-        finally:
-            zf.close()
-        self.cleanup(exten)
-    
-    # Compression function for tar files    
-    def comp_tar(self,exten):
-        doc = '002x134uz.' + str(exten) 
-        out = tarfile.open('002x134uz.tar',mode='w')
-        try:
-            out.add(doc)
-        finally:
-            out.close()
-        self.cleanup(exten)
-    
-    #This removes a file.         
-    def cleanup(self,exten):
-        try:
-            os.remove('002x134uz.'+str(exten))
-        except:
-            return
-             
+        #Expression for master card number
+        inp.append("^5[1-5][0-9]{14}$")
         
-if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    window = MyApp()
-    window.show()
-    sys.exit(app.exec_())
+        #A list of regular expressions can be found in regular_expression.txt
     
+    
+    extensions(inp)   
+main()
