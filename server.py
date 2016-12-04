@@ -1,4 +1,4 @@
-#Server
+# Server.py
 # Python 2.7
 # Authors: Coleman Platt, Erich Smith
 # Last modified: Dec. 2, 2016
@@ -9,39 +9,53 @@
 import BaseHTTPServer
 import socket
 import sys
+import ssl
 
 MAX_FILENAME = 255
 
-# #==============================Function that makes HTTPS server
-# def run_while_true(server_class=BaseHTTPServer.HTTPServer, handler_class=BaseHTTPServer.BaseHTTPRequestHandler):
-# #------------------------------sets host to violet and por 8000
-	  # server_address = ('violet.cs.engr.uky.edu', 8000)
-# #------------------------------makes server with server and handler attribus
-	  # httpd = server_class(server_address, myHandler )
-# #------------------------------loop through request handler until server interuptions
-	  # httpd.serve_forever()
+#==============================Function that makes HTTPS server
+def httpserver():
+        server_class = BaseHTTPServer.HTTPServer
+        #handler_class = BaseHTTPServer.BaseHTTPRequestHandler
+#------------------------------sets host to violet and por 8000
+        server_address = ('violet.cs.engr.uky.edu', 8000)
+#------------------------------makes server with server and handler attribus
+        httpd = server_class(server_address, myHandler)
+#------------------------------loop through request handler until server interuptions
+        httpd.serve_forever()
+
+def securehttpserver():
+        server_class = BaseHTTPServer.HTTPServer
+        #handler_class = BaseHTTPServer.BaseHTTPRequestHandler
+#------------------------------sets host to violet and por 8000
+        server_address = ('violet.cs.engr.uky.edu', 8000)
+#------------------------------makes server with server and handler attribus
+        httpd = server_class(server_address, myHandler)
+		httpd.socket = ssl.wrap_socket(httpd.socket ,certfile='./cert.pem' ,server_side=True)
+#------------------------------loop through request handler until server interuptions
+        httpd.serve_forever()
 
 
-# #=============================Class for handler to refrence and handler
-# class myHandler(BaseHTTPRequestHandler):
-
-		# #Handler for the PUT requests
-		# def do_PUT(self):
-				# print "----- SOMETHING WAS PUT!! ------"
-				# print self.headers
-# #---------------------recives size of data in request
-				# length = int(self.headers['Content-Length'])
-# #---------------------recieves data
-				# content = self.rfile.read(length)
-# #---------------------sends report
-				# self.send_response(200)
-				# print content
+#=============================Class for handler to refrence and handler
+class myHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+		 #Handler for the PUT requests
+	def do_PUT(self):
+		 print "----- SOMETHING WAS PUT!! ------"
+		 print self.headers
+#---------------------recives size of data in request
+		 length = int(self.headers['Content-Length'])
+#---------------------recieves data
+		 content = self.rfile.read(length)
+#---------------------sends report
+		 self.send_response(200)
+		 print content
+	
 
 
 def main():
 
 	# Prompt user for which communication protocol to use.
-	proto = str(raw_input("Choose command channel: (raw/https/telnet) "))
+	proto = str(raw_input("Choose command channel: (raw/http/https/telnet) "))
 
 	# Raw socket connection.
 	if proto == "raw":
@@ -98,8 +112,14 @@ def main():
 			return
 
 	# HTTPS connection.
+	elif proto == "http":
+		print("HTTP connection requested")
+		httpserver()
+		return
+
 	elif proto == "https":
-		print("HTTPS connection requested")
+		print("HTTPs connection requested")
+		securehttpserver()
 		return
 
 	# Telnet connection.
