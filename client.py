@@ -13,6 +13,7 @@ import httplib
 import string
 import telnetlib
 import base64
+import ssl
 
 def main():
 
@@ -75,26 +76,37 @@ def main():
 		print("Closed connection to server.")
 
 	return
-#================================HTTPS Connection
-	#elif proto == 'https':
-#--------------------------------connect to server using https protocol
-		#s = httplib.HTTPSConnection('violet.cs.engr.uky.edu',8000)
-#--------------------------------request commands for the server to handle
-		#s.request("PUT",sys.argv[1])
-#--------------------------------recieving confirmation from server
-		#response = s.getresponse()
-		#print response.status, response.reason
-#--------------------------------close connection
-		#s.close()
+#================================HTTP Connection
+	elif proto == 'http':
+        #connect to server using http protocol
+		s = httplib.HTTPSConnection('violet.cs.engr.uky.edu',8000)
+        #request commands for the server to handle
+		s.request("PUT",sys.argv[1])
+        #recieving confirmation from server
+		response = s.getresponse()
+		print response.status, response.reason
+        #close connection
+		s.close()
+#==============================HTTPs Connection
+	elif proto == 'https':
+		#create https connection with a unverified context 
+		s = httplib.HTTPSConnection('violet.cs.engr.uky.edu',8000, context=ssl._create_unverified_context())
+		#send file to server
+		s.request("PUT",sys.argv[1])
+		#get response from the server
+		response = s.getresponse()
+		print response.status, response.reason
+		#close socket connection
+		s.close()
+		
+	elif proto == 'telnet':
+		tn = telnetlib.Telnet()
+		n.open(host)
+		with open(filename, rb) as f:
+			content = f.read()
 
-	#elif proto == 'telnet':
-		#tn = telnetlib.Telnet()
-		#n.open(host)
-		#with open(filename, rb) as f:
-			#content = f.read()
+		content_serialized = base64.b64encode(content)
 
-		#content_serialized = base64.b64encode(content)
-
-		#tn.write(content_serialized)
+		tn.write(content_serialized)
 
 main()
