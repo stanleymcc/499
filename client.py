@@ -37,7 +37,7 @@ def main():
 		return
 
 	# Prompt user for connection method
-	proto = str(raw_input("Choose command channel: (raw/https/telnet) "))
+	proto = str(raw_input("Choose command channel: (raw/http/https/telnet) "))
 
 	# Socket only connection
 	if proto == "raw":
@@ -75,26 +75,34 @@ def main():
 		
 		print("Closed connection to server.")
 
-	return
+		return
 #================================HTTP Connection
 	elif proto == 'http':
         #connect to server using http protocol
-		s = httplib.HTTPSConnection('violet.cs.engr.uky.edu',8000)
+		s = httplib.HTTPConnection('violet.cs.engr.uky.edu',8000)
         #request commands for the server to handle
-		s.request("PUT",sys.argv[1])
-        #recieving confirmation from server
-		response = s.getresponse()
+		payload = open(sys.argv[1],'rb')
+		
+		headers = {"Content-type":os.path.basename(sys.argv[1]),"Content-Length":os.path.getsize(sys.argv[1])}
+		s.request("PUT",sys.argv[1],payload,headers)
+		#get response from the server
+		response = s.getresponse() 
 		print response.status, response.reason
-        #close connection
+		#close socket connection
 		s.close()
-#==============================HTTPs Connection
+
 	elif proto == 'https':
 		#create https connection with a unverified context 
 		s = httplib.HTTPSConnection('violet.cs.engr.uky.edu',8000, context=ssl._create_unverified_context())
 		#send file to server
-		s.request("PUT",sys.argv[1])
+		#2
+		payload = open(sys.argv[1],'rb')
+		
+		
+		headers = {"Content-type":os.path.basename(sys.argv[1]),"Content-Length":os.path.getsize(sys.argv[1])}
+		s.request("PUT",sys.argv[1],payload,headers)
 		#get response from the server
-		response = s.getresponse()
+		response = s.getresponse() 
 		print response.status, response.reason
 		#close socket connection
 		s.close()
@@ -108,5 +116,6 @@ def main():
 		content_serialized = base64.b64encode(content)
 
 		tn.write(content_serialized)
-
+	return
 main()
+
