@@ -31,7 +31,7 @@ def securehttpserver():
         server_address = ('violet.cs.engr.uky.edu', 8000)
 #------------------------------makes server with server and handler attribus
         httpd = server_class(server_address, myHandler)
-		httpd.socket = ssl.wrap_socket(httpd.socket ,certfile='./cert.pem' ,server_side=True)
+	httpd.socket = ssl.wrap_socket(httpd.socket ,certfile='./cert.pem' ,server_side=True)
 #------------------------------loop through request handler until server interuptions
         httpd.serve_forever()
 
