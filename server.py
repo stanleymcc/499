@@ -14,11 +14,11 @@ import ssl
 MAX_FILENAME = 255
 
 #==============================Function that makes HTTPS server
-def httpserver():
+def httpserver(port):
 
-	port = int(raw_input("Enter Port: "))
+	#port = int(raw_input("Enter Port: "))
 #	host = socket.gethostbyname(socket.gethostname())
-	print("Host Name: " +  socket.getfqdn())
+	#print("Host Name: " +  socket.getfqdn())
 	server_class = BaseHTTPServer.HTTPServer
 #------------------------------sets host to violet and por 8000
         server_address = (socket.getfqdn(),port)
@@ -30,10 +30,10 @@ def httpserver():
 	return
 
 
-def securehttpserver():
-        port = int(raw_input("Enter Port: "))
+def securehttpserver(port):
+        #port = int(raw_input("Enter Port: "))
 #       host = socket.gethostbyname(socket.gethostname())
-        print( "Host Name: " + socket.getfqdn())
+        #print( "Host Name: " + socket.getfqdn())
 
         server_class = BaseHTTPServer.HTTPServer
         #handler_class = BaseHTTPServer.BaseHTTPRequestHandler
@@ -73,7 +73,11 @@ class myHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 def main():
 
 	# Prompt user for which communication protocol to use.
-	proto = str(raw_input("Choose command channel: (raw/http/https) "))
+	# Get command channel from second command line argument
+	proto = str(sys.argv[2]) #str(raw_input("Choose command channel: (raw/http/https) "))
+	
+	# Get port number from first command line argument.
+	port = int(sys.argv[1])
 
 	# Raw socket connection.
 	if proto == "raw":
@@ -83,7 +87,7 @@ def main():
 		host = socket.gethostname()
 
 		# Get port number from user.
-		port = int(input("Enter a port number: "))
+		#port = int(input("Enter a port number: "))
 
 		# Bind host and port number.
 		s.bind((host,port))
@@ -132,12 +136,12 @@ def main():
 	# HTTPS connection.
 	elif proto == "http":
 		#print("HTTP connection requested")
-		httpserver()
+		httpserver(port)
 		return
 
 	elif proto == "https":
 		#print("HTTPs connection requested")
-		securehttpserver()
+		securehttpserver(port)
 		return
 
 	# Telnet connection.
