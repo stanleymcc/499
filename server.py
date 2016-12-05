@@ -53,14 +53,14 @@ class myHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	
 	def do_PUT(self):
-		print "----- SOMETHING WAS PUT!! ------"
-		print self.headers
+		#print "----- SOMETHING WAS PUT!! ------"
+		#print self.headers
 #---------------------recives size of data in request
 		length = int(self.headers['Content-Length'])
 #---------------------recieves data
 		
 		content = self.rfile.read(length)
-		print content
+		#print content
 #---------------------sends report
 		self.send_response(200)
 		 
@@ -70,12 +70,10 @@ class myHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			dst.close()
 		return
 	
-
-
 def main():
 
 	# Prompt user for which communication protocol to use.
-	proto = str(raw_input("Choose command channel: (raw/http/https/telnet) "))
+	proto = str(raw_input("Choose command channel: (raw/http/https) "))
 
 	# Raw socket connection.
 	if proto == "raw":
@@ -133,18 +131,18 @@ def main():
 
 	# HTTPS connection.
 	elif proto == "http":
-		print("HTTP connection requested")
+		#print("HTTP connection requested")
 		httpserver()
 		return
 
 	elif proto == "https":
-		print("HTTPs connection requested")
+		#print("HTTPs connection requested")
 		securehttpserver()
 		return
 
 	# Telnet connection.
 	elif proto == "telnet":
-		print("Telnet connnection requested")
+		#print("Telnet connnection requested")
 		return
 
 main()
