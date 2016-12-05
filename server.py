@@ -144,9 +144,4 @@ def main():
 		securehttpserver(port)
 		return
 
-	# Telnet connection.
-	elif proto == "telnet":
-		#print("Telnet connnection requested")
-		return
-
 main()
