@@ -43,8 +43,8 @@ def main():
 	if proto == "raw":
 
 		# Ask for host and port (hard coded during testing).
-		host = "violet.cs.engr.uky.edu" #str(raw_input("Enter a host name: "))
-		port = 2000 #int(input("Enter a port number: "))
+		host = str(raw_input("Enter a host name: "))
+		port = int(input("Enter a port number: "))
 
 		# Create socket and attempt to connect to server using host and port given.
 		s = socket.socket()
