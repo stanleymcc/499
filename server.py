@@ -10,6 +10,7 @@ import BaseHTTPServer
 import socket
 import sys
 import ssl
+import report
 
 MAX_FILENAME = 255
 
@@ -62,12 +63,16 @@ class myHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		content = self.rfile.read(length)
 		#print content
 #---------------------sends report
-		self.send_response(200)
-		 
+		self.send_response(200) 
         
 	        with open(str(self.headers['Content-type']), "wb") as dst:
 		   	dst.write(content)
 			dst.close()
+			
+			filename = str(self.headers['Content-type'])
+			
+			report.main(filename, sys.argv[2])
+			
 		return
 	
 def main():
@@ -123,7 +128,8 @@ def main():
 				print('Receiving...' + filename)
 				f.write(l)
 				l = c.recv(1024)
-
+			
+			report.main(filename, sys.argv[2])
 			# Print confirmation of file received and close all connections and file objects.
 			print('Received ' + filename + '.')
 			f.close()
