@@ -38,7 +38,7 @@ def main():
 
 	# Prompt user for connection method
 	proto = str(raw_input("Choose command channel: (raw/http/https/telnet) "))
-
+	
 	# Socket only connection
 	if proto == "raw":
 
@@ -78,8 +78,10 @@ def main():
 		return
 #================================HTTP Connection
 	elif proto == 'http':
+		host = str(raw_input("Enter Host name: "))
+		port = int(raw_input("Enter Port number: "))
         #connect to server using http protocol
-		s = httplib.HTTPConnection('violet.cs.engr.uky.edu',8000)
+		s = httplib.HTTPConnection(host,port)
         #request commands for the server to handle
 		payload = open(sys.argv[1],'rb')
 		
@@ -92,8 +94,10 @@ def main():
 		s.close()
 
 	elif proto == 'https':
-		#create https connection with a unverified context 
-		s = httplib.HTTPSConnection('violet.cs.engr.uky.edu',8000, context=ssl._create_unverified_context())
+                host = str(raw_input("Enter Host name: "))
+                port = int(raw_input("Enter Port number: "))
+     		#create https connection with a unverified context 
+		s = httplib.HTTPSConnection(host,port, context=ssl._create_unverified_context())
 		#send file to server
 		#2
 		payload = open(sys.argv[1],'rb')
@@ -118,4 +122,3 @@ def main():
 		tn.write(content_serialized)
 	return
 main()
-
