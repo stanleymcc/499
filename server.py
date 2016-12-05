@@ -15,9 +15,14 @@ MAX_FILENAME = 255
 
 #==============================Function that makes HTTPS server
 def httpserver():
-        server_class = BaseHTTPServer.HTTPServer
+
+	port = int(raw_input("Enter Port: "))
+#	host = socket.gethostbyname(socket.gethostname())
+	print("Host Name: " +  socket.getfqdn())
+	server_class = BaseHTTPServer.HTTPServer
 #------------------------------sets host to violet and por 8000
-        server_address = ('violet.cs.engr.uky.edu', 8000)
+        server_address = (socket.getfqdn(),port)
+
 #------------------------------makes server with server and handler attribus
         httpd = server_class(server_address, myHandler)
 #------------------------------loop through request handler until server interuptions
@@ -26,10 +31,14 @@ def httpserver():
 
 
 def securehttpserver():
+        port = int(raw_input("Enter Port: "))
+#       host = socket.gethostbyname(socket.gethostname())
+        print( "Host Name: " + socket.getfqdn())
+
         server_class = BaseHTTPServer.HTTPServer
         #handler_class = BaseHTTPServer.BaseHTTPRequestHandler
 #------------------------------sets host to violet and por 8000
-        server_address = ('violet.cs.engr.uky.edu', 8000)
+        server_address = (socket.getfqdn(), port)
 #------------------------------makes server with server and handler attribute
         httpd = server_class(server_address, myHandler)
 	httpd.socket = ssl.wrap_socket(httpd.socket ,certfile='./cert.pem' ,server_side=True)
